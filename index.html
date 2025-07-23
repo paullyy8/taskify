@@ -3,24 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your To Do</title>
+  <title>Taskify</title>
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="app-container">
     <header class="app-header">
-      <h1>Your To Do</h1>
-      <div class="filters">
-        <button class="filter-btn active" data-filter="all">ALL</button>
-        <button class="filter-btn" data-filter="in-progress">IN PROGRESS</button>
-        <button class="filter-btn" data-filter="completed">COMPLETED</button>
-        <button class="filter-btn" data-filter="low">LOW</button>
-        <button class="filter-btn" data-filter="medium">MEDIUM</button>
-        <button class="filter-btn" data-filter="high">HIGH</button>
+      <div class="header-content">
+        <h1><span class="material-icons-round">check_circle</span> Taskify</h1>
+        <button id="newTaskBtn" class="new-task-btn">
+          <span class="material-icons-round">add</span> New Task
+        </button>
       </div>
-      <button id="newTaskBtn" class="new-task-btn">New Task</button>
+      
+      <div class="filters">
+        <div class="filter-group">
+          <span class="filter-label">Status:</span>
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="in-progress">In Progress</button>
+          <button class="filter-btn" data-filter="completed">Completed</button>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Priority:</span>
+          <button class="filter-btn" data-filter="low">Low</button>
+          <button class="filter-btn" data-filter="medium">Medium</button>
+          <button class="filter-btn" data-filter="high">High</button>
+        </div>
+      </div>
     </header>
 
     <div id="taskList" class="task-list"></div>
@@ -28,23 +39,31 @@
 
   <!-- Modal for new task -->
   <div id="taskModal" class="modal hidden">
+    <div class="modal-backdrop"></div>
     <div class="modal-content">
-      <h2>New Task</h2>
-      <label>
-        Task Name:
-        <input type="text" id="taskInput" placeholder="Enter task name">
-      </label>
-      <label>
-        Priority:
-        <select id="prioritySelect">
-          <option value="high">High</option>
-          <option value="medium">Medium</option>
-          <option value="low">Low</option>
-        </select>
-      </label>
-      <div class="modal-actions">
-        <button id="saveTaskBtn" class="save-btn">Save</button>
-        <button id="cancelTaskBtn" class="cancel-btn">Cancel</button>
+      <div class="modal-header">
+        <h2>Add New Task</h2>
+        <button id="closeModalBtn" class="icon-btn">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="taskInput">Task Name</label>
+          <input type="text" id="taskInput" placeholder="What needs to be done?">
+        </div>
+        <div class="form-group">
+          <label for="prioritySelect">Priority</label>
+          <div class="priority-options">
+            <button class="priority-option high" data-priority="high">High</button>
+            <button class="priority-option medium" data-priority="medium">Medium</button>
+            <button class="priority-option low" data-priority="low">Low</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelTaskBtn" class="btn secondary">Cancel</button>
+        <button id="saveTaskBtn" class="btn primary">Add Task</button>
       </div>
     </div>
   </div>

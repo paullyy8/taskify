@@ -1,67 +1,115 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // DOM Elements
   const taskList = document.getElementById('taskList');
   const newTaskBtn = document.getElementById('newTaskBtn');
   const taskModal = document.getElementById('taskModal');
+  const modalBackdrop = document.querySelector('.modal-backdrop');
+  const closeModalBtn = document.getElementById('closeModalBtn');
   const saveTaskBtn = document.getElementById('saveTaskBtn');
   const cancelTaskBtn = document.getElementById('cancelTaskBtn');
   const taskInput = document.getElementById('taskInput');
-  const prioritySelect = document.getElementById('prioritySelect');
+  const priorityOptions = document.querySelectorAll('.priority-option');
   const filterBtns = document.querySelectorAll('.filter-btn');
 
+  // State
   let tasks = JSON.parse(localStorage.getItem('taskifyTasksV2')) || [];
+  let currentFilter = 'all';
+  let selectedPriority = 'medium';
 
-  // Show modal
-  newTaskBtn.addEventListener('click', () => {
+  // Initialize
+  renderTasks();
+
+  // Event Listeners
+  newTaskBtn.addEventListener('click', openModal);
+  closeModalBtn.addEventListener('click', closeModal);
+  modalBackdrop.addEventListener('click', closeModal);
+  cancelTaskBtn.addEventListener('click', closeModal);
+
+  saveTaskBtn.addEventListener('click', saveTask);
+  taskInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') saveTask();
+  });
+
+  priorityOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      priorityOptions.forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+      selectedPriority = option.dataset.priority;
+    });
+  });
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      renderTasks();
+    });
+  });
+
+  // Functions
+  function openModal() {
     taskModal.classList.remove('hidden');
-    taskInput.focus();
-  });
-
-  // Close modal
-  cancelTaskBtn.addEventListener('click', () => {
-    taskModal.classList.add('hidden');
     taskInput.value = '';
-  });
+    priorityOptions.forEach(opt => opt.classList.remove('selected'));
+    document.querySelector('.priority-option.medium').classList.add('selected');
+    selectedPriority = 'medium';
+    taskInput.focus();
+  }
 
-  // Save task
-  saveTaskBtn.addEventListener('click', () => {
+  function closeModal() {
+    taskModal.classList.add('hidden');
+  }
+
+  function saveTask() {
     const text = taskInput.value.trim();
-    const priority = prioritySelect.value;
     if (!text) return;
 
     const newTask = {
       id: Date.now(),
       text,
-      priority,
+      priority: selectedPriority,
       completed: false,
       created: new Date().toLocaleString()
     };
+
     tasks.push(newTask);
     localStorage.setItem('taskifyTasksV2', JSON.stringify(tasks));
-
     renderTasks();
-    taskInput.value = '';
-    taskModal.classList.add('hidden');
-  });
+    closeModal();
+  }
 
-  // Render tasks
-  function renderTasks(filter = 'all') {
+  function renderTasks() {
     taskList.innerHTML = '';
     let filteredTasks = tasks;
 
-    if (filter === 'completed') filteredTasks = tasks.filter(t => t.completed);
-    else if (filter === 'in-progress') filteredTasks = tasks.filter(t => !t.completed);
-    else if (filter === 'low' || filter === 'medium' || filter === 'high')
-      filteredTasks = tasks.filter(t => t.priority === filter);
+    if (currentFilter === 'completed') {
+      filteredTasks = tasks.filter(t => t.completed);
+    } else if (currentFilter === 'in-progress') {
+      filteredTasks = tasks.filter(t => !t.completed);
+    } else if (['low', 'medium', 'high'].includes(currentFilter)) {
+      filteredTasks = tasks.filter(t => t.priority === currentFilter);
+    }
+
+    if (filteredTasks.length === 0) {
+      taskList.innerHTML = `
+        <div class="empty-state">
+          <span class="material-icons-round">inbox</span>
+          <p>No tasks found</p>
+        </div>
+      `;
+      return;
+    }
 
     filteredTasks.forEach(task => {
-      const div = document.createElement('div');
-      div.className = 'task-item';
+      const taskItem = document.createElement('div');
+      taskItem.className = `task-item ${task.priority} ${task.completed ? 'completed' : ''}`;
 
-      div.innerHTML = `
+      taskItem.innerHTML = `
         <div class="task-left">
-          <span class="priority-dot ${task.priority}"></span>
-          <input type="checkbox" class="complete-check" ${task.completed ? 'checked' : ''}>
-          <div class="task-text" contenteditable="false">${task.text}
+          <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
+          <div class="task-text ${task.completed ? 'completed' : ''}">
+            ${task.text}
             <div class="timestamp">${task.created}</div>
           </div>
         </div>
@@ -71,31 +119,24 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
 
       // Complete toggle
-      div.querySelector('.complete-check').addEventListener('change', (e) => {
+      const checkbox = taskItem.querySelector('.task-checkbox');
+      const taskText = taskItem.querySelector('.task-text');
+      
+      checkbox.addEventListener('change', (e) => {
         task.completed = e.target.checked;
+        taskItem.classList.toggle('completed', task.completed);
+        taskText.classList.toggle('completed', task.completed);
         localStorage.setItem('taskifyTasksV2', JSON.stringify(tasks));
-        renderTasks(filter);
       });
 
-      // Delete
-      div.querySelector('.delete').addEventListener('click', () => {
+      // Delete task
+      taskItem.querySelector('.delete').addEventListener('click', () => {
         tasks = tasks.filter(t => t.id !== task.id);
         localStorage.setItem('taskifyTasksV2', JSON.stringify(tasks));
-        renderTasks(filter);
+        renderTasks();
       });
 
-      taskList.appendChild(div);
+      taskList.appendChild(taskItem);
     });
   }
-
-  // Filters
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelector('.filter-btn.active')?.classList.remove('active');
-      btn.classList.add('active');
-      renderTasks(btn.dataset.filter);
-    });
-  });
-
-  renderTasks();
 });
