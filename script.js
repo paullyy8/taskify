@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
         saveTask(task);
         renderTask(task);
         taskInput.value = '';
+        taskInput.focus();
     }
 
     function renderTask(task) {
@@ -36,15 +37,13 @@ document.addEventListener('DOMContentLoaded', function() {
         taskItem.dataset.id = task.id;
 
         taskItem.innerHTML = `
+            <div class="status-pill ${task.status}">
+                ${task.status.replace('-', ' ')}
+            </div>
             <div class="task-content">
                 <span class="task-text">${task.text}</span>
             </div>
             <div class="task-actions">
-                <select class="status-select ${task.status}" title="Status">
-                    <option value="pending" ${task.status === 'pending' ? 'selected' : ''}>Pending</option>
-                    <option value="in-progress" ${task.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
-                    <option value="completed" ${task.status === 'completed' ? 'selected' : ''}>Completed</option>
-                </select>
                 <button class="action-btn edit" title="Edit">
                     <span class="material-icons-round">edit</span>
                 </button>
@@ -56,15 +55,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
         taskList.appendChild(taskItem);
 
-        // Add event listeners for the new task
-        const statusSelect = taskItem.querySelector('.status-select');
+        // Add event listeners
         const editBtn = taskItem.querySelector('.edit');
         const deleteBtn = taskItem.querySelector('.delete');
         const taskTextElement = taskItem.querySelector('.task-text');
+        const statusPill = taskItem.querySelector('.status-pill');
 
-        statusSelect.addEventListener('change', function() {
-            const newStatus = this.value;
-            this.className = `status-select ${newStatus}`;
+        statusPill.addEventListener('click', function() {
+            const currentStatus = task.status;
+            let newStatus;
+            
+            if (currentStatus === 'pending') newStatus = 'in-progress';
+            else if (currentStatus === 'in-progress') newStatus = 'completed';
+            else newStatus = 'pending';
+            
+            task.status = newStatus;
+            statusPill.className = `status-pill ${newStatus}`;
+            statusPill.textContent = newStatus.replace('-', ' ');
             
             taskItem.classList.toggle('completed', newStatus === 'completed');
             updateTaskStatus(task.id, newStatus);
