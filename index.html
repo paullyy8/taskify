@@ -1,30 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>taskify</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your To Do</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Taskify</h1>
-            <p>Your minimal task companion</p>
-        </header>
+  <div class="app-container">
+    <header class="app-header">
+      <h1>Your To Do</h1>
+      <div class="filters">
+        <button class="filter-btn active" data-filter="all">ALL</button>
+        <button class="filter-btn" data-filter="in-progress">IN PROGRESS</button>
+        <button class="filter-btn" data-filter="completed">COMPLETED</button>
+        <button class="filter-btn" data-filter="low">LOW</button>
+        <button class="filter-btn" data-filter="medium">MEDIUM</button>
+        <button class="filter-btn" data-filter="high">HIGH</button>
+      </div>
+      <button id="newTaskBtn" class="new-task-btn">New Task</button>
+    </header>
 
-        <div class="add-task">
-            <input type="text" id="taskInput" placeholder="Add your task..." autocomplete="off">
-            <button id="addBtn" class="add-button" title="Add Task">
-                <span class="material-icons-round">add</span>
-            </button>
-        </div>
+    <div id="taskList" class="task-list"></div>
+  </div>
 
-        <div id="taskList" class="task-list"></div>
+  <!-- Modal for new task -->
+  <div id="taskModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>New Task</h2>
+      <label>
+        Task Name:
+        <input type="text" id="taskInput" placeholder="Enter task name">
+      </label>
+      <label>
+        Priority:
+        <select id="prioritySelect">
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </label>
+      <div class="modal-actions">
+        <button id="saveTaskBtn" class="save-btn">Save</button>
+        <button id="cancelTaskBtn" class="cancel-btn">Cancel</button>
+      </div>
     </div>
+  </div>
 
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

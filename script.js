@@ -1,142 +1,101 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const taskInput = document.getElementById('taskInput');
-    const addBtn = document.getElementById('addBtn');
-    const taskList = document.getElementById('taskList');
+document.addEventListener('DOMContentLoaded', () => {
+  const taskList = document.getElementById('taskList');
+  const newTaskBtn = document.getElementById('newTaskBtn');
+  const taskModal = document.getElementById('taskModal');
+  const saveTaskBtn = document.getElementById('saveTaskBtn');
+  const cancelTaskBtn = document.getElementById('cancelTaskBtn');
+  const taskInput = document.getElementById('taskInput');
+  const prioritySelect = document.getElementById('prioritySelect');
+  const filterBtns = document.querySelectorAll('.filter-btn');
 
-    // Load tasks from localStorage
-    loadTasks();
+  let tasks = JSON.parse(localStorage.getItem('taskifyTasksV2')) || [];
 
-    // Add task event
-    addBtn.addEventListener('click', addTask);
-    taskInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            addTask();
-        }
+  // Show modal
+  newTaskBtn.addEventListener('click', () => {
+    taskModal.classList.remove('hidden');
+    taskInput.focus();
+  });
+
+  // Close modal
+  cancelTaskBtn.addEventListener('click', () => {
+    taskModal.classList.add('hidden');
+    taskInput.value = '';
+  });
+
+  // Save task
+  saveTaskBtn.addEventListener('click', () => {
+    const text = taskInput.value.trim();
+    const priority = prioritySelect.value;
+    if (!text) return;
+
+    const newTask = {
+      id: Date.now(),
+      text,
+      priority,
+      completed: false,
+      created: new Date().toLocaleString()
+    };
+    tasks.push(newTask);
+    localStorage.setItem('taskifyTasksV2', JSON.stringify(tasks));
+
+    renderTasks();
+    taskInput.value = '';
+    taskModal.classList.add('hidden');
+  });
+
+  // Render tasks
+  function renderTasks(filter = 'all') {
+    taskList.innerHTML = '';
+    let filteredTasks = tasks;
+
+    if (filter === 'completed') filteredTasks = tasks.filter(t => t.completed);
+    else if (filter === 'in-progress') filteredTasks = tasks.filter(t => !t.completed);
+    else if (filter === 'low' || filter === 'medium' || filter === 'high')
+      filteredTasks = tasks.filter(t => t.priority === filter);
+
+    filteredTasks.forEach(task => {
+      const div = document.createElement('div');
+      div.className = 'task-item';
+
+      div.innerHTML = `
+        <div class="task-left">
+          <span class="priority-dot ${task.priority}"></span>
+          <input type="checkbox" class="complete-check" ${task.completed ? 'checked' : ''}>
+          <div class="task-text" contenteditable="false">${task.text}
+            <div class="timestamp">${task.created}</div>
+          </div>
+        </div>
+        <div class="task-actions">
+          <span class="material-icons-round delete">delete</span>
+        </div>
+      `;
+
+      // Complete toggle
+      div.querySelector('.complete-check').addEventListener('change', (e) => {
+        task.completed = e.target.checked;
+        localStorage.setItem('taskifyTasksV2', JSON.stringify(tasks));
+        renderTasks(filter);
+      });
+
+      // Delete
+      div.querySelector('.delete').addEventListener('click', () => {
+        tasks = tasks.filter(t => t.id !== task.id);
+        localStorage.setItem('taskifyTasksV2', JSON.stringify(tasks));
+        renderTasks(filter);
+      });
+
+      taskList.appendChild(div);
     });
+  }
 
-    function addTask() {
-        const taskText = taskInput.value.trim();
-        if (taskText === '') return;
+  // Filters
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelector('.filter-btn.active')?.classList.remove('active');
+      btn.classList.add('active');
+      renderTasks(btn.dataset.filter);
+    });
+  });
 
-        const taskId = Date.now();
-        const task = {
-            id: taskId,
-            text: taskText,
-            status: 'pending'
-        };
-
-        saveTask(task);
-        renderTask(task);
-        taskInput.value = '';
-        taskInput.focus();
-    }
-
-    function renderTask(task) {
-        const taskItem = document.createElement('div');
-        taskItem.className = `task-item ${task.status === 'completed' ? 'completed' : ''}`;
-        taskItem.dataset.id = task.id;
-
-        taskItem.innerHTML = `
-            <div class="status-pill ${task.status}">
-                ${task.status.replace('-', ' ')}
-            </div>
-            <div class="task-content">
-                <span class="task-text">${task.text}</span>
-            </div>
-            <div class="task-actions">
-                <button class="action-btn edit" title="Edit">
-                    <span class="material-icons-round">edit</span>
-                </button>
-                <button class="action-btn delete" title="Delete">
-                    <span class="material-icons-round">delete</span>
-                </button>
-            </div>
-        `;
-
-        taskList.appendChild(taskItem);
-
-        // Add event listeners
-        const editBtn = taskItem.querySelector('.edit');
-        const deleteBtn = taskItem.querySelector('.delete');
-        const taskTextElement = taskItem.querySelector('.task-text');
-        const statusPill = taskItem.querySelector('.status-pill');
-
-        statusPill.addEventListener('click', function() {
-            const currentStatus = task.status;
-            let newStatus;
-            
-            if (currentStatus === 'pending') newStatus = 'in-progress';
-            else if (currentStatus === 'in-progress') newStatus = 'completed';
-            else newStatus = 'pending';
-            
-            task.status = newStatus;
-            statusPill.className = `status-pill ${newStatus}`;
-            statusPill.textContent = newStatus.replace('-', ' ');
-            
-            taskItem.classList.toggle('completed', newStatus === 'completed');
-            updateTaskStatus(task.id, newStatus);
-        });
-
-        editBtn.addEventListener('click', function() {
-            if (taskItem.classList.contains('editing')) {
-                // Save changes
-                const newText = taskTextElement.textContent.trim();
-                if (newText !== '') {
-                    updateTaskText(task.id, newText);
-                }
-                taskItem.classList.remove('editing');
-                taskTextElement.contentEditable = 'false';
-            } else {
-                // Enable editing
-                taskItem.classList.add('editing');
-                taskTextElement.contentEditable = 'true';
-                taskTextElement.focus();
-            }
-        });
-
-        deleteBtn.addEventListener('click', function() {
-            if (confirm('Are you sure you want to delete this task?')) {
-                deleteTask(task.id);
-                taskItem.remove();
-            }
-        });
-    }
-
-    function saveTask(task) {
-        const tasks = getTasks();
-        tasks.push(task);
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-    }
-
-    function getTasks() {
-        return JSON.parse(localStorage.getItem('tasks')) || [];
-    }
-
-    function loadTasks() {
-        const tasks = getTasks();
-        tasks.forEach(task => renderTask(task));
-    }
-
-    function updateTaskStatus(id, newStatus) {
-        const tasks = getTasks();
-        const taskIndex = tasks.findIndex(task => task.id == id);
-        if (taskIndex !== -1) {
-            tasks[taskIndex].status = newStatus;
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-        }
-    }
-
-    function updateTaskText(id, newText) {
-        const tasks = getTasks();
-        const taskIndex = tasks.findIndex(task => task.id == id);
-        if (taskIndex !== -1) {
-            tasks[taskIndex].text = newText;
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-        }
-    }
-
-    function deleteTask(id) {
-        const tasks = getTasks().filter(task => task.id != id);
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-    }
+  renderTasks();
 });
