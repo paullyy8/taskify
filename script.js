@@ -10,11 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const taskInput = document.getElementById('taskInput');
   const priorityOptions = document.querySelectorAll('.priority-option');
   const filterBtns = document.querySelectorAll('.filter-btn');
+  const themeToggle = document.getElementById('themeToggle');
 
   // State
   let tasks = JSON.parse(localStorage.getItem('taskifyTasksV2')) || [];
   let currentFilter = 'all';
   let selectedPriority = 'medium';
+  let currentTheme = localStorage.getItem('taskifyTheme') || 'dark';
+  document.documentElement.setAttribute('data-theme', currentTheme);
 
   // Initialize
   renderTasks();
@@ -24,8 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
   closeModalBtn.addEventListener('click', closeModal);
   modalBackdrop.addEventListener('click', closeModal);
   cancelTaskBtn.addEventListener('click', closeModal);
-
   saveTaskBtn.addEventListener('click', saveTask);
+  themeToggle.addEventListener('click', toggleTheme);
+
   taskInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') saveTask();
   });
@@ -77,6 +81,18 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('taskifyTasksV2', JSON.stringify(tasks));
     renderTasks();
     closeModal();
+  }
+
+  function toggleTheme() {
+    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    localStorage.setItem('taskifyTheme', currentTheme);
+    
+    // Animate the toggle
+    themeToggle.style.transform = 'scale(0.95)';
+    setTimeout(() => {
+      themeToggle.style.transform = 'scale(1)';
+    }, 100);
   }
 
   function renderTasks() {
