@@ -19,6 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentTheme = localStorage.getItem('taskifyTheme') || 'dark';
   document.documentElement.setAttribute('data-theme', currentTheme);
 
+  // Mobile keyboard handling
+  if ('virtualKeyboard' in navigator) {
+    navigator.virtualKeyboard.overlaysContent = true;
+  }
+
   // Initialize
   renderTasks();
 

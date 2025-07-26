@@ -43,6 +43,11 @@
   font-family: var(--font);
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -274,6 +279,8 @@ body {
   border-radius: 8px;
   transition: var(--transition);
   border-left: 4px solid transparent;
+  -webkit-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
 }
 
 .task-item:hover {
@@ -508,4 +515,148 @@ body {
   font-size: 48px;
   margin-bottom: 16px;
   opacity: 0.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  body {
+    padding: 1rem;
+  }
+
+  .app-container {
+    padding: 16px;
+    border-radius: 8px;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .filters {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .filter-group {
+    flex-wrap: wrap;
+    padding: 6px 8px;
+  }
+
+  .filter-label {
+    width: 100%;
+    margin-bottom: 4px;
+  }
+
+  .filter-btn {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+
+  .task-item {
+    padding: 12px;
+  }
+
+  .task-left {
+    gap: 8px;
+  }
+
+  .task-text .timestamp {
+    font-size: 0.7rem;
+  }
+
+  .modal-content {
+    max-width: 90%;
+    margin: 0 16px;
+  }
+
+  .priority-options {
+    flex-direction: column;
+  }
+
+  .priority-option {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .new-task-btn span:last-child {
+    display: none;
+  }
+
+  .new-task-btn {
+    padding: 10px;
+    border-radius: 50%;
+  }
+
+  .theme-toggle {
+    width: 40px;
+    height: 40px;
+  min-width: 40px;
+  }
+
+  .task-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .task-left {
+    width: 100%;
+  }
+
+  .task-actions {
+    align-self: flex-end;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+  }
+}
+
+/* Special cases for very small heights */
+@media (max-height: 600px) {
+  body {
+    padding: 0.5rem;
+  }
+
+  .app-container {
+    max-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .task-list {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+  }
+}
+
+/* Tablet landscape optimization */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .app-container {
+    max-width: 90%;
+  }
+
+  .filters {
+    flex-wrap: wrap;
+  }
+
+  .filter-group {
+    flex: 1 1 40%;
+  }
 }
