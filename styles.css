@@ -154,24 +154,32 @@ body {
 /* Filters */
 .filters {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: row;
   gap: 1rem;
   margin-bottom: 1rem;
 }
 
 .filter-group {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
   background: var(--surface-light);
-  padding: 8px 12px;
+  padding: 12px;
   border-radius: 8px;
+  flex: 1;
 }
 
 .filter-label {
   font-size: 0.85rem;
   color: var(--text-secondary);
   font-weight: 500;
+  width: 100%;
+}
+
+.filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .filter-btn {
@@ -181,13 +189,15 @@ body {
   cursor: pointer;
   padding: 6px 12px;
   border-radius: 6px;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
   transition: var(--transition);
+  white-space: nowrap;
 }
 
 .filter-btn.active {
   background: var(--primary);
+  color: white;
 }
 
 .filter-btn:not(.active):hover {
@@ -244,6 +254,7 @@ body {
   background: var(--border);
 }
 
+/* New Task Button */
 .new-task-btn {
   background: var(--primary);
   color: var(--text);
@@ -257,10 +268,20 @@ body {
   align-items: center;
   gap: 6px;
   transition: var(--transition);
+  position: relative;
+  overflow: hidden;
 }
 
 .new-task-btn:hover {
   background: var(--primary-dark);
+}
+
+.new-task-btn .icon-add {
+  display: flex;
+}
+
+.new-task-btn .btn-text {
+  transition: opacity 0.2s ease;
 }
 
 /* Task List */
@@ -541,22 +562,14 @@ body {
 
   .filters {
     flex-direction: column;
-    gap: 8px;
   }
 
   .filter-group {
-    flex-wrap: wrap;
-    padding: 6px 8px;
-  }
-
-  .filter-label {
     width: 100%;
-    margin-bottom: 4px;
   }
 
-  .filter-btn {
-    padding: 4px 8px;
-    font-size: 0.8rem;
+  .filter-buttons {
+    justify-content: flex-start;
   }
 
   .task-item {
@@ -590,19 +603,52 @@ body {
     font-size: 1.5rem;
   }
 
-  .new-task-btn span:last-child {
-    display: none;
+  .theme-toggle {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
   }
 
   .new-task-btn {
     padding: 10px;
-    border-radius: 50%;
+    width: 40px;
+    justify-content: center;
+  }
+  
+  .new-task-btn .btn-text {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+  }
+  
+  .new-task-btn::after {
+    content: attr(aria-label);
+    position: absolute;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  
+  .new-task-btn:hover::after {
+    opacity: 1;
   }
 
-  .theme-toggle {
-    width: 40px;
-    height: 40px;
-  min-width: 40px;
+  .filter-group {
+    padding: 10px;
+  }
+  
+  .filter-btn {
+    padding: 6px 10px;
+    font-size: 0.8rem;
   }
 
   .task-item {
@@ -658,70 +704,5 @@ body {
 
   .filter-group {
     flex: 1 1 40%;
-  }
-}
-/* New Task Button */
-.new-task-btn {
-  background: var(--primary);
-  color: var(--text);
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: var(--transition);
-  position: relative;
-  overflow: hidden;
-}
-
-.new-task-btn:hover {
-  background: var(--primary-dark);
-}
-
-.new-task-btn .icon-add {
-  display: flex;
-}
-
-.new-task-btn .btn-text {
-  transition: opacity 0.2s ease;
-}
-
-/* Mobile adaptation */
-@media (max-width: 480px) {
-  .new-task-btn {
-    padding: 10px;
-    width: 40px;
-    justify-content: center;
-  }
-  
-  .new-task-btn .btn-text {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-  }
-  
-  .new-task-btn::after {
-    content: attr(aria-label);
-    position: absolute;
-    background: rgba(0,0,0,0.8);
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    bottom: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    opacity: 0;
-    transition: opacity 0.2s;
-    pointer-events: none;
-    white-space: nowrap;
-  }
-  
-  .new-task-btn:hover::after {
-    opacity: 1;
   }
 }
