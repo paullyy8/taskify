@@ -80,5 +80,50 @@
   </div>
 
   <script src="script.js"></script>
+  <!-- Add this right before </body> -->
+<div class="pomodoro-container">
+  <div class="pomodoro-header">
+    <span class="material-icons-round">timer</span>
+    <h3>Pomodoro</h3>
+    <button class="pomodoro-close">
+      <span class="material-icons-round">expand_less</span>
+    </button>
+  </div>
+  
+  <div class="pomodoro-display">
+    <div class="progress-ring">
+      <svg viewBox="0 0 100 100">
+        <circle class="progress-ring-circle" cx="50" cy="50" r="45" />
+      </svg>
+      <div class="time-display">25:00</div>
+    </div>
+    <div class="phase-label">Focus</div>
+  </div>
+  
+  <div class="pomodoro-controls">
+    <button class="pomodoro-btn play-pause">
+      <span class="material-icons-round">play_arrow</span>
+    </button>
+    <button class="pomodoro-btn skip">
+      <span class="material-icons-round">skip_next</span>
+    </button>
+    <button class="pomodoro-btn reset">
+      <span class="material-icons-round">stop</span>
+    </button>
+  </div>
+  
+  <div class="pomodoro-settings">
+    <div class="setting-row">
+      <label>Focus</label>
+      <input type="number" min="1" max="60" value="25" class="focus-duration">
+      <span>min</span>
+    </div>
+    <div class="setting-row">
+      <label>Break</label>
+      <input type="number" min="1" max="30" value="5" class="break-duration">
+      <span>min</span>
+    </div>
+  </div>
+</div>
 </body>
 </html>
