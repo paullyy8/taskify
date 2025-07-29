@@ -160,135 +160,135 @@ document.addEventListener('DOMContentLoaded', () => {
       taskList.appendChild(taskItem);
     });
   }
-});
-// Pomodoro Timer Functionality
-class PomodoroTimer {
-  constructor() {
-    this.isRunning = false;
-    this.isFocus = true;
-    this.secondsLeft = 25 * 60;
-    this.focusDuration = 25;
-    this.breakDuration = 5;
-    this.interval = null;
-    
-    this.domElements = {
-      container: document.querySelector('.pomodoro-container'),
-      timeDisplay: document.querySelector('.time-display'),
-      phaseLabel: document.querySelector('.phase-label'),
-      progressCircle: document.querySelector('.progress-ring-circle'),
-      playPauseBtn: document.querySelector('.play-pause'),
-      skipBtn: document.querySelector('.skip'),
-      resetBtn: document.querySelector('.reset'),
-      focusInput: document.querySelector('.focus-duration'),
-      breakInput: document.querySelector('.break-duration'),
-      header: document.querySelector('.pomodoro-header'),
-      closeBtn: document.querySelector('.pomodoro-close')
-    };
-    
-    this.init();
-  }
-  
-  init() {
-    // Set circumference for progress ring
-    const radius = this.domElements.progressCircle.r.baseVal.value;
-    this.circumference = radius * 2 * Math.PI;
-    this.domElements.progressCircle.style.strokeDasharray = `${this.circumference} ${this.circumference}`;
-    
-    // Event listeners
-    this.domElements.playPauseBtn.addEventListener('click', () => this.toggleTimer());
-    this.domElements.skipBtn.addEventListener('click', () => this.skipPhase());
-    this.domElements.resetBtn.addEventListener('click', () => this.resetTimer());
-    this.domElements.header.addEventListener('click', () => this.toggleExpand());
-    this.domElements.closeBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.toggleExpand();
-    });
-    
-    this.domElements.focusInput.addEventListener('change', (e) => {
-      this.focusDuration = parseInt(e.target.value) || 25;
-      if (!this.isRunning) this.resetTimer();
-    });
-    
-    this.domElements.breakInput.addEventListener('change', (e) => {
-      this.breakDuration = parseInt(e.target.value) || 5;
-      if (!this.isRunning) this.resetTimer();
-    });
-    
-    this.updateDisplay();
-  }
-  
-  toggleExpand() {
-    this.domElements.container.classList.toggle('expanded');
-  }
-  
-  toggleTimer() {
-    if (this.isRunning) {
-      this.pauseTimer();
-    } else {
-      this.startTimer();
-    }
-  }
-  
-  startTimer() {
-    this.isRunning = true;
-    this.domElements.playPauseBtn.innerHTML = '<span class="material-icons-round">pause</span>';
-    
-    this.interval = setInterval(() => {
-      this.secondsLeft--;
-      this.updateDisplay();
-      
-      if (this.secondsLeft <= 0) {
-        this.switchPhase();
-      }
-    }, 1000);
-  }
-  
-  pauseTimer() {
-    this.isRunning = false;
-    clearInterval(this.interval);
-    this.domElements.playPauseBtn.innerHTML = '<span class="material-icons-round">play_arrow</span>';
-  }
-  
-  skipPhase() {
-    this.switchPhase();
-  }
-  
-  resetTimer() {
-    this.pauseTimer();
-    this.isFocus = true;
-    this.secondsLeft = this.focusDuration * 60;
-    this.updateDisplay();
-  }
-  
-  switchPhase() {
-    this.isFocus = !this.isFocus;
-    this.secondsLeft = (this.isFocus ? this.focusDuration : this.breakDuration) * 60;
-    
-    // Update UI based on phase
-    this.domElements.phaseLabel.textContent = this.isFocus ? 'Focus' : 'Break';
-    this.domElements.progressCircle.style.stroke = this.isFocus ? 'var(--primary)' : 'var(--low)';
-    
-    // Play sound or notification
-    if (this.isRunning) {
-      this.startTimer(); // Restart timer automatically
-    } else {
-      this.updateDisplay();
-    }
-  }
-  
-  updateDisplay() {
-    const minutes = Math.floor(this.secondsLeft / 60);
-    const seconds = this.secondsLeft % 60;
-    this.domElements.timeDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-    
-    // Update progress ring
-    const totalSeconds = (this.isFocus ? this.focusDuration : this.breakDuration) * 60;
-    const offset = this.circumference - (this.secondsLeft / totalSeconds) * this.circumference;
-    this.domElements.progressCircle.style.strokeDashoffset = offset;
-  }
-}
 
-// Initialize when DOM loads
-document.addEventListener('DOMContentLoaded', () => {
+  // Pomodoro Timer Implementation
+  class PomodoroTimer {
+    constructor() {
+      this.isRunning = false;
+      this.isFocus = true;
+      this.secondsLeft = 25 * 60;
+      this.focusDuration = 25;
+      this.breakDuration = 5;
+      this.interval = null;
+      
+      this.domElements = {
+        launcher: document.getElementById('pomodoroLauncher'),
+        modal: document.getElementById('pomodoroModal'),
+        timeDisplay: document.querySelector('.time-display'),
+        phaseLabel: document.querySelector('.phase-label'),
+        progressCircle: document.querySelector('.progress-ring-circle'),
+        playPauseBtn: document.querySelector('.play-pause'),
+        skipBtn: document.querySelector('.skip'),
+        resetBtn: document.querySelector('.reset'),
+        focusInput: document.querySelector('.focus-duration'),
+        breakInput: document.querySelector('.break-duration'),
+        closeBtn: document.querySelector('.close-modal')
+      };
+      
+      this.init();
+    }
+    
+    init() {
+      // Set up progress ring
+      const radius = this.domElements.progressCircle.r.baseVal.value;
+      this.circumference = radius * 2 * Math.PI;
+      this.domElements.progressCircle.style.strokeDasharray = `${this.circumference} ${this.circumference}`;
+      
+      // Event listeners
+      this.domElements.launcher.addEventListener('click', () => this.openModal());
+      this.domElements.closeBtn.addEventListener('click', () => this.closeModal());
+      this.domElements.playPauseBtn.addEventListener('click', () => this.toggleTimer());
+      this.domElements.skipBtn.addEventListener('click', () => this.skipPhase());
+      this.domElements.resetBtn.addEventListener('click', () => this.resetTimer());
+      
+      this.domElements.focusInput.addEventListener('change', (e) => {
+        this.focusDuration = parseInt(e.target.value) || 25;
+        if (!this.isRunning) this.resetTimer();
+      });
+      
+      this.domElements.breakInput.addEventListener('change', (e) => {
+        this.breakDuration = parseInt(e.target.value) || 5;
+        if (!this.isRunning) this.resetTimer();
+      });
+      
+      this.updateDisplay();
+    }
+    
+    openModal() {
+      this.domElements.modal.classList.remove('hidden');
+    }
+    
+    closeModal() {
+      this.domElements.modal.classList.add('hidden');
+    }
+    
+    toggleTimer() {
+      if (this.isRunning) {
+        this.pauseTimer();
+      } else {
+        this.startTimer();
+      }
+    }
+    
+    startTimer() {
+      this.isRunning = true;
+      this.domElements.playPauseBtn.innerHTML = '<span class="material-icons-round">pause</span>';
+      
+      this.interval = setInterval(() => {
+        this.secondsLeft--;
+        this.updateDisplay();
+        
+        if (this.secondsLeft <= 0) {
+          this.switchPhase();
+        }
+      }, 1000);
+    }
+    
+    pauseTimer() {
+      this.isRunning = false;
+      clearInterval(this.interval);
+      this.domElements.playPauseBtn.innerHTML = '<span class="material-icons-round">play_arrow</span>';
+    }
+    
+    skipPhase() {
+      this.switchPhase();
+    }
+    
+    resetTimer() {
+      this.pauseTimer();
+      this.isFocus = true;
+      this.secondsLeft = this.focusDuration * 60;
+      this.updateDisplay();
+      this.domElements.modal.classList.remove('break-phase');
+    }
+    
+    switchPhase() {
+      this.isFocus = !this.isFocus;
+      this.secondsLeft = (this.isFocus ? this.focusDuration : this.breakDuration) * 60;
+      
+      // Update UI
+      this.domElements.phaseLabel.textContent = this.isFocus ? 'Focus' : 'Break';
+      this.domElements.progressCircle.style.stroke = this.isFocus ? 'var(--primary)' : 'var(--low)';
+      this.domElements.modal.classList.toggle('break-phase', !this.isFocus);
+      
+      if (this.isRunning) {
+        this.startTimer();
+      } else {
+        this.updateDisplay();
+      }
+    }
+    
+    updateDisplay() {
+      const minutes = Math.floor(this.secondsLeft / 60);
+      const seconds = this.secondsLeft % 60;
+      this.domElements.timeDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+      
+      const totalSeconds = (this.isFocus ? this.focusDuration : this.breakDuration) * 60;
+      const offset = this.circumference - (this.secondsLeft / totalSeconds) * this.circumference;
+      this.domElements.progressCircle.style.strokeDashoffset = offset;
+    }
+  }
+
+  // Initialize Pomodoro Timer
   new PomodoroTimer();
 });
