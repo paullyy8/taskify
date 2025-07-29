@@ -1,6 +1,6 @@
 # Taskify 📋✅⏰
 
-> ⚠️ This project is currently under construction and in active development. We're working hard to refine and enhance its features.
+> ⚠️ This project is currently under construction and in active development. Working hard to refine and enhance its features.
 
 ## 🚀 Contribute
 
