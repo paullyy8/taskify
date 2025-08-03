@@ -192,34 +192,35 @@ document.addEventListener('DOMContentLoaded', () => {
           pomodoro: document.querySelector('.phase-pomodoro'),
           shortBreak: document.querySelector('.phase-short-break'),
           longBreak: document.querySelector('.phase-long-break')
-        }
+        },
+        settingsPanel: document.querySelector('.pomodoro-settings'),
+        settingsHeader: document.querySelector('.settings-header')
       };
 
       this.init();
     }
 
     init() {
-      // Set up progress ring
       const radius = this.domElements.progressCircle.r.baseVal.value;
       this.circumference = radius * 2 * Math.PI;
       this.domElements.progressCircle.style.strokeDasharray = `${this.circumference} ${this.circumference}`;
 
-      // Event listeners
       this.domElements.launcher.addEventListener('click', () => this.openDrawer());
       this.domElements.closeBtn.addEventListener('click', () => this.closeDrawer());
       this.domElements.drawerBackdrop.addEventListener('click', () => this.closeDrawer());
       this.domElements.playPauseBtn.addEventListener('click', () => this.toggleTimer());
       this.domElements.skipBtn.addEventListener('click', () => this.skipPhase());
       this.domElements.resetBtn.addEventListener('click', () => this.resetTimer());
+      
+      // Corrected: Event listener for settings toggle is now here
+      this.domElements.settingsHeader.addEventListener('click', () => this.toggleSettings());
 
-      // Phase selection buttons
       Object.keys(this.domElements.phaseButtons).forEach(phase => {
         this.domElements.phaseButtons[phase].addEventListener('click', () => {
           this.switchPhase(phase);
         });
       });
 
-      // Duration settings
       this.domElements.focusInput.addEventListener('change', (e) => {
         this.durations.pomodoro = (parseInt(e.target.value) || 25) * 60;
         if (!this.isRunning && this.currentPhase === 'pomodoro') {
@@ -260,6 +261,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }, {
         once: true
       });
+    }
+    
+    toggleSettings() {
+      this.domElements.settingsPanel.classList.toggle('expanded');
     }
 
     toggleTimer() {
@@ -311,30 +316,23 @@ document.addEventListener('DOMContentLoaded', () => {
       this.currentPhase = phase;
       this.resetTimer();
 
-      // Update active button
       Object.keys(this.domElements.phaseButtons).forEach(key => {
         this.domElements.phaseButtons[key].classList.toggle('active', key === phase);
       });
 
-      // Update UI
       this.domElements.phaseLabel.textContent = this.getPhaseName(phase);
       this.domElements.progressCircle.style.stroke = this.getPhaseColor(phase);
-      // Removed this line as the class is now on the drawer itself, handled by the CSS
-      // this.domElements.drawer.className = `modal ${phase}-phase`;
     }
 
     handlePhaseComplete() {
       this.pauseTimer();
 
-      // Play alarm sound
       const alarm = new Audio('https://www.freespecialeffects.co.uk/soundfx/scifi/electronic.wav');
       alarm.play();
 
-      // Show notification
       const phaseName = this.getPhaseName(this.currentPhase);
       let nextPhase = 'shortBreak';
       // Logic for long break after 4 pomodoros would go here
-      
       const nextPhaseName = this.getPhaseName(nextPhase);
 
       if (Notification.permission === 'granted') {
@@ -343,7 +341,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
 
-      // Auto-switch phase
       this.switchPhase(nextPhase);
     }
 

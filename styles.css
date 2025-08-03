@@ -613,8 +613,7 @@ body {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
-  /* Make the drawer content scrollable on overflow */
-  overflow-y: auto; 
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -628,7 +627,6 @@ body {
   align-items: center;
   padding: 20px 24px;
   border-bottom: 1px solid var(--border);
-  /* Make the header sticky */
   position: sticky;
   top: 0;
   background: var(--surface);
@@ -648,7 +646,6 @@ body {
   justify-content: center;
   gap: 24px;
   padding: 24px;
-  /* Add flex-grow to take up available space */
   flex-grow: 1;
 }
 
@@ -761,26 +758,57 @@ body {
   background: var(--surface-light);
   border-radius: 12px;
   padding: 20px;
-  margin-top: 10px;
   width: 100%;
 }
 
-.setting-group {
+.settings-header {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
 }
 
-.setting-group h3 {
+.settings-header h3 {
   font-size: 1rem;
   color: var(--text-secondary);
-  margin-bottom: 8px;
+}
+
+.expand-settings {
+  transition: transform 0.3s ease;
+  color: var(--text-secondary);
+}
+
+.pomodoro-settings.expanded .expand-settings {
+  transform: rotate(180deg);
+}
+
+.settings-content {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  padding-top: 0;
+  pointer-events: none;
+}
+
+.pomodoro-settings.expanded .settings-content {
+  max-height: 500px; /* Large enough to fit all content */
+  opacity: 1;
+  padding-top: 16px;
+  pointer-events: auto;
 }
 
 .setting-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.setting-row:last-child {
+  margin-bottom: 0;
 }
 
 .setting-row label {
@@ -903,6 +931,8 @@ body {
   /* --- Pomodoro Drawer Responsive Mobile Layout --- */
   .drawer-content {
     max-width: 100%;
+    /* No need for scrolling on the main drawer on mobile */
+    overflow-y: hidden;
   }
 
   .drawer-header {
@@ -914,7 +944,7 @@ body {
     /* Flexbox for clean vertical stacking */
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 16px; /* Reduced gap for more compactness */
     justify-content: flex-start;
     align-items: center;
   }
@@ -934,18 +964,22 @@ body {
   }
 
   .progress-ring {
-    width: 220px;
-    height: 220px;
+    width: 160px; /* Reduced size */
+    height: 160px; /* Reduced size */
     margin: 0;
   }
 
+  .progress-ring-circle {
+    stroke-width: 6; /* Thinner stroke */
+  }
+
   .time-display {
-    font-size: 3rem;
+    font-size: 2.2rem; /* Reduced font size */
   }
 
   .phase-label {
-    margin-top: 16px;
-    font-size: 1.1rem;
+    margin-top: 12px;
+    font-size: 1rem;
   }
 
   .pomodoro-controls {
@@ -954,41 +988,15 @@ body {
   }
 
   .pomodoro-btn {
-    width: 60px;
-    height: 60px;
+    width: 52px;
+    height: 52px;
   }
 
   .pomodoro-settings {
     width: 100%;
     padding: 16px;
-    /* Allow settings to grow and be visible */
-    flex-shrink: 0;
+    margin-top: 8px;
   }
-
-  .setting-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .setting-row label {
-    width: 100%;
-    text-align: left;
-  }
-
-  .setting-row .input-group {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .setting-row input {
-    flex: 1;
-  }
-
-  .setting-row span {
-    width: auto;
-  }
-
 }
 
 @media (max-width: 480px) {
@@ -1076,21 +1084,16 @@ body {
 
   /* Pomodoro Drawer adjustments for small phones */
   .pomodoro-body {
-    gap: 20px;
+    gap: 12px;
   }
 
   .progress-ring {
-    width: 180px;
-    height: 180px;
+    width: 150px;
+    height: 150px;
   }
 
   .time-display {
-    font-size: 2.5rem;
-  }
-
-  .pomodoro-btn {
-    width: 52px;
-    height: 52px;
+    font-size: 2rem;
   }
 }
 
