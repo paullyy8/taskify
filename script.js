@@ -162,132 +162,205 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Pomodoro Timer Implementation
-  class PomodoroTimer {
-    constructor() {
-      this.isRunning = false;
-      this.isFocus = true;
-      this.secondsLeft = 25 * 60;
-      this.focusDuration = 25;
-      this.breakDuration = 5;
-      this.interval = null;
-      
-      this.domElements = {
-        launcher: document.getElementById('pomodoroLauncher'),
-        modal: document.getElementById('pomodoroModal'),
-        timeDisplay: document.querySelector('.time-display'),
-        phaseLabel: document.querySelector('.phase-label'),
-        progressCircle: document.querySelector('.progress-ring-circle'),
-        playPauseBtn: document.querySelector('.play-pause'),
-        skipBtn: document.querySelector('.skip'),
-        resetBtn: document.querySelector('.reset'),
-        focusInput: document.querySelector('.focus-duration'),
-        breakInput: document.querySelector('.break-duration'),
-        closeBtn: document.querySelector('.close-modal')
-      };
-      
-      this.init();
-    }
+ class PomodoroTimer {
+  constructor() {
+    this.isRunning = false;
+    this.currentPhase = 'pomodoro'; // 'pomodoro' | 'shortBreak' | 'longBreak'
+    this.remainingTime = 25 * 60; // in seconds
+    this.durations = {
+      pomodoro: 25 * 60,
+      shortBreak: 5 * 60,
+      longBreak: 10 * 60
+    };
+    this.interval = null;
     
-    init() {
-      // Set up progress ring
-      const radius = this.domElements.progressCircle.r.baseVal.value;
-      this.circumference = radius * 2 * Math.PI;
-      this.domElements.progressCircle.style.strokeDasharray = `${this.circumference} ${this.circumference}`;
-      
-      // Event listeners
-      this.domElements.launcher.addEventListener('click', () => this.openModal());
-      this.domElements.closeBtn.addEventListener('click', () => this.closeModal());
-      this.domElements.playPauseBtn.addEventListener('click', () => this.toggleTimer());
-      this.domElements.skipBtn.addEventListener('click', () => this.skipPhase());
-      this.domElements.resetBtn.addEventListener('click', () => this.resetTimer());
-      
-      this.domElements.focusInput.addEventListener('change', (e) => {
-        this.focusDuration = parseInt(e.target.value) || 25;
-        if (!this.isRunning) this.resetTimer();
-      });
-      
-      this.domElements.breakInput.addEventListener('change', (e) => {
-        this.breakDuration = parseInt(e.target.value) || 5;
-        if (!this.isRunning) this.resetTimer();
-      });
-      
-      this.updateDisplay();
-    }
-    
-    openModal() {
-      this.domElements.modal.classList.remove('hidden');
-    }
-    
-    closeModal() {
-      this.domElements.modal.classList.add('hidden');
-    }
-    
-    toggleTimer() {
-      if (this.isRunning) {
-        this.pauseTimer();
-      } else {
-        this.startTimer();
+    this.domElements = {
+      launcher: document.getElementById('pomodoroLauncher'),
+      modal: document.getElementById('pomodoroModal'),
+      timeDisplay: document.querySelector('.time-display'),
+      phaseLabel: document.querySelector('.phase-label'),
+      progressCircle: document.querySelector('.progress-ring-circle'),
+      playPauseBtn: document.querySelector('.play-pause'),
+      skipBtn: document.querySelector('.skip'),
+      resetBtn: document.querySelector('.reset'),
+      focusInput: document.querySelector('.focus-duration'),
+      breakInput: document.querySelector('.break-duration'),
+      shortBreakInput: document.querySelector('.short-break-duration'),
+      longBreakInput: document.querySelector('.long-break-duration'),
+      closeBtn: document.querySelector('.close-modal'),
+      phaseButtons: {
+        pomodoro: document.querySelector('.phase-pomodoro'),
+        shortBreak: document.querySelector('.phase-short-break'),
+        longBreak: document.querySelector('.phase-long-break')
       }
-    }
+    };
     
-    startTimer() {
-      this.isRunning = true;
-      this.domElements.playPauseBtn.innerHTML = '<span class="material-icons-round">pause</span>';
-      
-      this.interval = setInterval(() => {
-        this.secondsLeft--;
-        this.updateDisplay();
-        
-        if (this.secondsLeft <= 0) {
-          this.switchPhase();
-        }
-      }, 1000);
-    }
+    this.init();
+  }
+  
+  init() {
+    // Set up progress ring
+    const radius = this.domElements.progressCircle.r.baseVal.value;
+    this.circumference = radius * 2 * Math.PI;
+    this.domElements.progressCircle.style.strokeDasharray = `${this.circumference} ${this.circumference}`;
     
-    pauseTimer() {
-      this.isRunning = false;
-      clearInterval(this.interval);
-      this.domElements.playPauseBtn.innerHTML = '<span class="material-icons-round">play_arrow</span>';
-    }
+    // Event listeners
+    this.domElements.launcher.addEventListener('click', () => this.openModal());
+    this.domElements.closeBtn.addEventListener('click', () => this.closeModal());
+    this.domElements.playPauseBtn.addEventListener('click', () => this.toggleTimer());
+    this.domElements.skipBtn.addEventListener('click', () => this.skipPhase());
+    this.domElements.resetBtn.addEventListener('click', () => this.resetTimer());
     
-    skipPhase() {
-      this.switchPhase();
-    }
+    // Phase selection buttons
+    Object.keys(this.domElements.phaseButtons).forEach(phase => {
+      this.domElements.phaseButtons[phase].addEventListener('click', () => {
+        this.switchPhase(phase);
+      });
+    });
     
-    resetTimer() {
+    // Duration settings
+    this.domElements.focusInput.addEventListener('change', (e) => {
+      this.durations.pomodoro = (parseInt(e.target.value) || 25) * 60;
+      if (!this.isRunning && this.currentPhase === 'pomodoro') {
+        this.resetTimer();
+      }
+    });
+    
+    this.domElements.shortBreakInput.addEventListener('change', (e) => {
+      this.durations.shortBreak = (parseInt(e.target.value) || 5) * 60;
+      if (!this.isRunning && this.currentPhase === 'shortBreak') {
+        this.resetTimer();
+      }
+    });
+    
+    this.domElements.longBreakInput.addEventListener('change', (e) => {
+      this.durations.longBreak = (parseInt(e.target.value) || 10) * 60;
+      if (!this.isRunning && this.currentPhase === 'longBreak') {
+        this.resetTimer();
+      }
+    });
+    
+    this.updateDisplay();
+  }
+  
+  openModal() {
+    this.domElements.modal.classList.remove('hidden');
+  }
+  
+  closeModal() {
+    this.domElements.modal.classList.add('hidden');
+  }
+  
+  toggleTimer() {
+    if (this.isRunning) {
       this.pauseTimer();
-      this.isFocus = true;
-      this.secondsLeft = this.focusDuration * 60;
-      this.updateDisplay();
-      this.domElements.modal.classList.remove('break-phase');
-    }
-    
-    switchPhase() {
-      this.isFocus = !this.isFocus;
-      this.secondsLeft = (this.isFocus ? this.focusDuration : this.breakDuration) * 60;
-      
-      // Update UI
-      this.domElements.phaseLabel.textContent = this.isFocus ? 'Focus' : 'Break';
-      this.domElements.progressCircle.style.stroke = this.isFocus ? 'var(--primary)' : 'var(--low)';
-      this.domElements.modal.classList.toggle('break-phase', !this.isFocus);
-      
-      if (this.isRunning) {
-        this.startTimer();
-      } else {
-        this.updateDisplay();
-      }
-    }
-    
-    updateDisplay() {
-      const minutes = Math.floor(this.secondsLeft / 60);
-      const seconds = this.secondsLeft % 60;
-      this.domElements.timeDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-      
-      const totalSeconds = (this.isFocus ? this.focusDuration : this.breakDuration) * 60;
-      const offset = this.circumference - (this.secondsLeft / totalSeconds) * this.circumference;
-      this.domElements.progressCircle.style.strokeDashoffset = offset;
+    } else {
+      this.startTimer();
     }
   }
+  
+  startTimer() {
+    if (this.remainingTime <= 0) return;
+    
+    this.isRunning = true;
+    this.domElements.playPauseBtn.innerHTML = '<span class="material-icons-round">pause</span>';
+    
+    const startTime = Date.now();
+    const endTime = startTime + (this.remainingTime * 1000);
+    
+    this.interval = setInterval(() => {
+      const now = Date.now();
+      this.remainingTime = Math.max(0, Math.floor((endTime - now) / 1000));
+      
+      this.updateDisplay();
+      
+      if (this.remainingTime <= 0) {
+        this.handlePhaseComplete();
+      }
+    }, 1000);
+  }
+  
+  pauseTimer() {
+    this.isRunning = false;
+    clearInterval(this.interval);
+    this.domElements.playPauseBtn.innerHTML = '<span class="material-icons-round">play_arrow</span>';
+  }
+  
+  skipPhase() {
+    this.handlePhaseComplete();
+  }
+  
+  resetTimer() {
+    this.pauseTimer();
+    this.remainingTime = this.durations[this.currentPhase];
+    this.updateDisplay();
+  }
+  
+  switchPhase(phase) {
+    this.currentPhase = phase;
+    this.resetTimer();
+    
+    // Update active button
+    Object.keys(this.domElements.phaseButtons).forEach(key => {
+      this.domElements.phaseButtons[key].classList.toggle('active', key === phase);
+    });
+    
+    // Update UI
+    this.domElements.phaseLabel.textContent = this.getPhaseName(phase);
+    this.domElements.progressCircle.style.stroke = this.getPhaseColor(phase);
+    this.domElements.modal.className = `modal ${phase}-phase`;
+  }
+  
+  handlePhaseComplete() {
+    this.pauseTimer();
+    
+    // Play alarm sound
+    const alarm = new Audio('https://www.freespecialeffects.co.uk/soundfx/scifi/electronic.wav');
+    alarm.play();
+    
+    // Show notification
+    const phaseName = this.getPhaseName(this.currentPhase);
+    const nextPhase = this.currentPhase === 'pomodoro' ? 'shortBreak' : 'pomodoro';
+    const nextPhaseName = this.getPhaseName(nextPhase);
+    
+    if (Notification.permission === 'granted') {
+      new Notification(`${phaseName} completed!`, {
+        body: `Time for ${nextPhaseName.toLowerCase()}`
+      });
+    }
+    
+    // Auto-switch phase
+    this.switchPhase(nextPhase);
+  }
+  
+  updateDisplay() {
+    const minutes = Math.floor(this.remainingTime / 60);
+    const seconds = this.remainingTime % 60;
+    this.domElements.timeDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    
+    const totalSeconds = this.durations[this.currentPhase];
+    const offset = this.circumference - (this.remainingTime / totalSeconds) * this.circumference;
+    this.domElements.progressCircle.style.strokeDashoffset = offset;
+  }
+  
+  getPhaseName(phase) {
+    const names = {
+      pomodoro: 'Focus',
+      shortBreak: 'Short Break',
+      longBreak: 'Long Break'
+    };
+    return names[phase] || phase;
+  }
+  
+  getPhaseColor(phase) {
+    const colors = {
+      pomodoro: 'var(--primary)',
+      shortBreak: 'var(--low)',
+      longBreak: 'var(--medium)'
+    };
+    return colors[phase] || 'var(--primary)';
+  }
+}
 
   // Initialize Pomodoro Timer
   new PomodoroTimer();

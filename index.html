@@ -53,54 +53,64 @@
     <span class="material-icons-round">timer</span>
   </button>
 
-  <!-- Pomodoro Modal -->
-  <div id="pomodoroModal" class="modal hidden">
-    <div class="modal-backdrop"></div>
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Pomodoro Timer</h2>
-        <button class="icon-btn close-modal">
-          <span class="material-icons-round">close</span>
-        </button>
+ <!-- Pomodoro Modal -->
+<div id="pomodoroModal" class="modal hidden">
+  <div class="modal-backdrop"></div>
+  <div class="modal-content pomodoro-modal">
+    <div class="modal-header">
+      <h2>Pomodoro Timer</h2>
+      <button class="icon-btn close-modal">
+        <span class="material-icons-round">close</span>
+      </button>
+    </div>
+    
+    <div class="phase-selector">
+      <button class="phase-pomodoro active">Pomodoro</button>
+      <button class="phase-short-break">Short Break</button>
+      <button class="phase-long-break">Long Break</button>
+    </div>
+    
+    <div class="pomodoro-display">
+      <div class="progress-ring">
+        <svg viewBox="0 0 100 100">
+          <circle class="progress-ring-circle" cx="50" cy="50" r="45" />
+        </svg>
+        <div class="time-display">25:00</div>
       </div>
-      
-      <div class="pomodoro-display">
-        <div class="progress-ring">
-          <svg viewBox="0 0 100 100">
-            <circle class="progress-ring-circle" cx="50" cy="50" r="45" />
-          </svg>
-          <div class="time-display">25:00</div>
-        </div>
-        <div class="phase-label">Focus</div>
+      <div class="phase-label">Focus</div>
+    </div>
+    
+    <div class="pomodoro-controls">
+      <button class="pomodoro-btn play-pause">
+        <span class="material-icons-round">play_arrow</span>
+      </button>
+      <button class="pomodoro-btn skip">
+        <span class="material-icons-round">skip_next</span>
+      </button>
+      <button class="pomodoro-btn reset">
+        <span class="material-icons-round">stop</span>
+      </button>
+    </div>
+    
+    <div class="pomodoro-settings">
+      <div class="setting-row">
+        <label>Focus Duration</label>
+        <input type="number" min="1" max="60" value="25" class="focus-duration">
+        <span>minutes</span>
       </div>
-      
-      <div class="pomodoro-controls">
-        <button class="pomodoro-btn play-pause">
-          <span class="material-icons-round">play_arrow</span>
-        </button>
-        <button class="pomodoro-btn skip">
-          <span class="material-icons-round">skip_next</span>
-        </button>
-        <button class="pomodoro-btn reset">
-          <span class="material-icons-round">stop</span>
-        </button>
+      <div class="setting-row">
+        <label>Short Break</label>
+        <input type="number" min="1" max="30" value="5" class="short-break-duration">
+        <span>minutes</span>
       </div>
-      
-      <div class="pomodoro-settings">
-        <div class="setting-row">
-          <label>Focus Duration</label>
-          <input type="number" min="1" max="60" value="25" class="focus-duration">
-          <span>minutes</span>
-        </div>
-        <div class="setting-row">
-          <label>Break Duration</label>
-          <input type="number" min="1" max="30" value="5" class="break-duration">
-          <span>minutes</span>
-        </div>
+      <div class="setting-row">
+        <label>Long Break</label>
+        <input type="number" min="1" max="60" value="10" class="long-break-duration">
+        <span>minutes</span>
       </div>
     </div>
   </div>
-
+</div>
   <!-- Task Modal -->
   <div id="taskModal" class="modal hidden">
     <div class="modal-backdrop"></div>

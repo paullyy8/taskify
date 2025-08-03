@@ -873,3 +873,50 @@ body {
     flex: 1 1 40%;
   }
 }
+/* Phase Selector */
+.phase-selector {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 20px 20px;
+}
+
+.phase-selector button {
+  background: var(--surface-light);
+  border: none;
+  color: var(--text);
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: var(--transition);
+}
+
+.phase-selector button.active {
+  background: var(--primary);
+  color: white;
+}
+
+/* Phase-specific styling */
+.pomodoro-phase .phase-pomodoro,
+.short-break-phase .phase-short-break,
+.long-break-phase .phase-long-break {
+  background: var(--primary);
+  color: white;
+}
+
+.short-break-phase .progress-ring-circle {
+  stroke: var(--low);
+}
+
+.short-break-phase .phase-label {
+  color: var(--low);
+}
+
+.long-break-phase .progress-ring-circle {
+  stroke: var(--medium);
+}
+
+.long-break-phase .phase-label {
+  color: var(--medium);
+}
