@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', currentTheme);
     localStorage.setItem('taskifyTheme', currentTheme);
-    
+
     // Animate the toggle
     themeToggle.style.transform = 'scale(0.95)';
     setTimeout(() => {
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Complete toggle
       const checkbox = taskItem.querySelector('.task-checkbox');
       const taskText = taskItem.querySelector('.task-text');
-      
+
       checkbox.addEventListener('change', (e) => {
         task.completed = e.target.checked;
         taskItem.classList.toggle('completed', task.completed);
@@ -162,205 +162,219 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Pomodoro Timer Implementation
- class PomodoroTimer {
-  constructor() {
-    this.isRunning = false;
-    this.currentPhase = 'pomodoro'; // 'pomodoro' | 'shortBreak' | 'longBreak'
-    this.remainingTime = 25 * 60; // in seconds
-    this.durations = {
-      pomodoro: 25 * 60,
-      shortBreak: 5 * 60,
-      longBreak: 10 * 60
-    };
-    this.interval = null;
-    
-    this.domElements = {
-      launcher: document.getElementById('pomodoroLauncher'),
-      modal: document.getElementById('pomodoroModal'),
-      timeDisplay: document.querySelector('.time-display'),
-      phaseLabel: document.querySelector('.phase-label'),
-      progressCircle: document.querySelector('.progress-ring-circle'),
-      playPauseBtn: document.querySelector('.play-pause'),
-      skipBtn: document.querySelector('.skip'),
-      resetBtn: document.querySelector('.reset'),
-      focusInput: document.querySelector('.focus-duration'),
-      breakInput: document.querySelector('.break-duration'),
-      shortBreakInput: document.querySelector('.short-break-duration'),
-      longBreakInput: document.querySelector('.long-break-duration'),
-      closeBtn: document.querySelector('.close-modal'),
-      phaseButtons: {
-        pomodoro: document.querySelector('.phase-pomodoro'),
-        shortBreak: document.querySelector('.phase-short-break'),
-        longBreak: document.querySelector('.phase-long-break')
-      }
-    };
-    
-    this.init();
-  }
-  
-  init() {
-    // Set up progress ring
-    const radius = this.domElements.progressCircle.r.baseVal.value;
-    this.circumference = radius * 2 * Math.PI;
-    this.domElements.progressCircle.style.strokeDasharray = `${this.circumference} ${this.circumference}`;
-    
-    // Event listeners
-    this.domElements.launcher.addEventListener('click', () => this.openModal());
-    this.domElements.closeBtn.addEventListener('click', () => this.closeModal());
-    this.domElements.playPauseBtn.addEventListener('click', () => this.toggleTimer());
-    this.domElements.skipBtn.addEventListener('click', () => this.skipPhase());
-    this.domElements.resetBtn.addEventListener('click', () => this.resetTimer());
-    
-    // Phase selection buttons
-    Object.keys(this.domElements.phaseButtons).forEach(phase => {
-      this.domElements.phaseButtons[phase].addEventListener('click', () => {
-        this.switchPhase(phase);
-      });
-    });
-    
-    // Duration settings
-    this.domElements.focusInput.addEventListener('change', (e) => {
-      this.durations.pomodoro = (parseInt(e.target.value) || 25) * 60;
-      if (!this.isRunning && this.currentPhase === 'pomodoro') {
-        this.resetTimer();
-      }
-    });
-    
-    this.domElements.shortBreakInput.addEventListener('change', (e) => {
-      this.durations.shortBreak = (parseInt(e.target.value) || 5) * 60;
-      if (!this.isRunning && this.currentPhase === 'shortBreak') {
-        this.resetTimer();
-      }
-    });
-    
-    this.domElements.longBreakInput.addEventListener('change', (e) => {
-      this.durations.longBreak = (parseInt(e.target.value) || 10) * 60;
-      if (!this.isRunning && this.currentPhase === 'longBreak') {
-        this.resetTimer();
-      }
-    });
-    
-    this.updateDisplay();
-  }
-  
-  openModal() {
-    this.domElements.modal.classList.remove('hidden');
-  }
-  
-  closeModal() {
-    this.domElements.modal.classList.add('hidden');
-  }
-  
-  toggleTimer() {
-    if (this.isRunning) {
-      this.pauseTimer();
-    } else {
-      this.startTimer();
+  class PomodoroTimer {
+    constructor() {
+      this.isRunning = false;
+      this.currentPhase = 'pomodoro'; // 'pomodoro' | 'shortBreak' | 'longBreak'
+      this.remainingTime = 25 * 60; // in seconds
+      this.durations = {
+        pomodoro: 25 * 60,
+        shortBreak: 5 * 60,
+        longBreak: 10 * 60
+      };
+      this.interval = null;
+
+      this.domElements = {
+        launcher: document.getElementById('pomodoroLauncher'),
+        drawer: document.getElementById('pomodoroDrawer'),
+        timeDisplay: document.querySelector('.time-display'),
+        phaseLabel: document.querySelector('.phase-label'),
+        progressCircle: document.querySelector('.progress-ring-circle'),
+        playPauseBtn: document.querySelector('.play-pause'),
+        skipBtn: document.querySelector('.skip'),
+        resetBtn: document.querySelector('.reset'),
+        focusInput: document.querySelector('.focus-duration'),
+        shortBreakInput: document.querySelector('.short-break-duration'),
+        longBreakInput: document.querySelector('.long-break-duration'),
+        closeBtn: document.querySelector('.close-drawer'),
+        drawerBackdrop: document.querySelector('.drawer-backdrop'),
+        phaseButtons: {
+          pomodoro: document.querySelector('.phase-pomodoro'),
+          shortBreak: document.querySelector('.phase-short-break'),
+          longBreak: document.querySelector('.phase-long-break')
+        }
+      };
+
+      this.init();
     }
-  }
-  
-  startTimer() {
-    if (this.remainingTime <= 0) return;
-    
-    this.isRunning = true;
-    this.domElements.playPauseBtn.innerHTML = '<span class="material-icons-round">pause</span>';
-    
-    const startTime = Date.now();
-    const endTime = startTime + (this.remainingTime * 1000);
-    
-    this.interval = setInterval(() => {
-      const now = Date.now();
-      this.remainingTime = Math.max(0, Math.floor((endTime - now) / 1000));
-      
+
+    init() {
+      // Set up progress ring
+      const radius = this.domElements.progressCircle.r.baseVal.value;
+      this.circumference = radius * 2 * Math.PI;
+      this.domElements.progressCircle.style.strokeDasharray = `${this.circumference} ${this.circumference}`;
+
+      // Event listeners
+      this.domElements.launcher.addEventListener('click', () => this.openDrawer());
+      this.domElements.closeBtn.addEventListener('click', () => this.closeDrawer());
+      this.domElements.drawerBackdrop.addEventListener('click', () => this.closeDrawer());
+      this.domElements.playPauseBtn.addEventListener('click', () => this.toggleTimer());
+      this.domElements.skipBtn.addEventListener('click', () => this.skipPhase());
+      this.domElements.resetBtn.addEventListener('click', () => this.resetTimer());
+
+      // Phase selection buttons
+      Object.keys(this.domElements.phaseButtons).forEach(phase => {
+        this.domElements.phaseButtons[phase].addEventListener('click', () => {
+          this.switchPhase(phase);
+        });
+      });
+
+      // Duration settings
+      this.domElements.focusInput.addEventListener('change', (e) => {
+        this.durations.pomodoro = (parseInt(e.target.value) || 25) * 60;
+        if (!this.isRunning && this.currentPhase === 'pomodoro') {
+          this.resetTimer();
+        }
+      });
+
+      this.domElements.shortBreakInput.addEventListener('change', (e) => {
+        this.durations.shortBreak = (parseInt(e.target.value) || 5) * 60;
+        if (!this.isRunning && this.currentPhase === 'shortBreak') {
+          this.resetTimer();
+        }
+      });
+
+      this.domElements.longBreakInput.addEventListener('change', (e) => {
+        this.durations.longBreak = (parseInt(e.target.value) || 10) * 60;
+        if (!this.isRunning && this.currentPhase === 'longBreak') {
+          this.resetTimer();
+        }
+      });
+
       this.updateDisplay();
-      
-      if (this.remainingTime <= 0) {
-        this.handlePhaseComplete();
-      }
-    }, 1000);
-  }
-  
-  pauseTimer() {
-    this.isRunning = false;
-    clearInterval(this.interval);
-    this.domElements.playPauseBtn.innerHTML = '<span class="material-icons-round">play_arrow</span>';
-  }
-  
-  skipPhase() {
-    this.handlePhaseComplete();
-  }
-  
-  resetTimer() {
-    this.pauseTimer();
-    this.remainingTime = this.durations[this.currentPhase];
-    this.updateDisplay();
-  }
-  
-  switchPhase(phase) {
-    this.currentPhase = phase;
-    this.resetTimer();
-    
-    // Update active button
-    Object.keys(this.domElements.phaseButtons).forEach(key => {
-      this.domElements.phaseButtons[key].classList.toggle('active', key === phase);
-    });
-    
-    // Update UI
-    this.domElements.phaseLabel.textContent = this.getPhaseName(phase);
-    this.domElements.progressCircle.style.stroke = this.getPhaseColor(phase);
-    this.domElements.modal.className = `modal ${phase}-phase`;
-  }
-  
-  handlePhaseComplete() {
-    this.pauseTimer();
-    
-    // Play alarm sound
-    const alarm = new Audio('https://www.freespecialeffects.co.uk/soundfx/scifi/electronic.wav');
-    alarm.play();
-    
-    // Show notification
-    const phaseName = this.getPhaseName(this.currentPhase);
-    const nextPhase = this.currentPhase === 'pomodoro' ? 'shortBreak' : 'pomodoro';
-    const nextPhaseName = this.getPhaseName(nextPhase);
-    
-    if (Notification.permission === 'granted') {
-      new Notification(`${phaseName} completed!`, {
-        body: `Time for ${nextPhaseName.toLowerCase()}`
+    }
+
+    openDrawer() {
+      this.domElements.drawer.classList.remove('hidden');
+      setTimeout(() => {
+        this.domElements.drawer.classList.add('visible');
+      }, 10);
+    }
+
+    closeDrawer() {
+      this.domElements.drawer.classList.remove('visible');
+      this.domElements.drawer.addEventListener('transitionend', () => {
+        if (!this.domElements.drawer.classList.contains('visible')) {
+          this.domElements.drawer.classList.add('hidden');
+        }
+      }, {
+        once: true
       });
     }
-    
-    // Auto-switch phase
-    this.switchPhase(nextPhase);
+
+    toggleTimer() {
+      if (this.isRunning) {
+        this.pauseTimer();
+      } else {
+        this.startTimer();
+      }
+    }
+
+    startTimer() {
+      if (this.remainingTime <= 0) return;
+
+      this.isRunning = true;
+      this.domElements.playPauseBtn.innerHTML = '<span class="material-icons-round">pause</span>';
+
+      const startTime = Date.now();
+      const endTime = startTime + (this.remainingTime * 1000);
+
+      this.interval = setInterval(() => {
+        const now = Date.now();
+        this.remainingTime = Math.max(0, Math.floor((endTime - now) / 1000));
+
+        this.updateDisplay();
+
+        if (this.remainingTime <= 0) {
+          this.handlePhaseComplete();
+        }
+      }, 1000);
+    }
+
+    pauseTimer() {
+      this.isRunning = false;
+      clearInterval(this.interval);
+      this.domElements.playPauseBtn.innerHTML = '<span class="material-icons-round">play_arrow</span>';
+    }
+
+    skipPhase() {
+      this.handlePhaseComplete();
+    }
+
+    resetTimer() {
+      this.pauseTimer();
+      this.remainingTime = this.durations[this.currentPhase];
+      this.updateDisplay();
+    }
+
+    switchPhase(phase) {
+      this.currentPhase = phase;
+      this.resetTimer();
+
+      // Update active button
+      Object.keys(this.domElements.phaseButtons).forEach(key => {
+        this.domElements.phaseButtons[key].classList.toggle('active', key === phase);
+      });
+
+      // Update UI
+      this.domElements.phaseLabel.textContent = this.getPhaseName(phase);
+      this.domElements.progressCircle.style.stroke = this.getPhaseColor(phase);
+      // Removed this line as the class is now on the drawer itself, handled by the CSS
+      // this.domElements.drawer.className = `modal ${phase}-phase`;
+    }
+
+    handlePhaseComplete() {
+      this.pauseTimer();
+
+      // Play alarm sound
+      const alarm = new Audio('https://www.freespecialeffects.co.uk/soundfx/scifi/electronic.wav');
+      alarm.play();
+
+      // Show notification
+      const phaseName = this.getPhaseName(this.currentPhase);
+      let nextPhase = 'shortBreak';
+      // Logic for long break after 4 pomodoros would go here
+      
+      const nextPhaseName = this.getPhaseName(nextPhase);
+
+      if (Notification.permission === 'granted') {
+        new Notification(`${phaseName} completed!`, {
+          body: `Time for ${nextPhaseName.toLowerCase()}`
+        });
+      }
+
+      // Auto-switch phase
+      this.switchPhase(nextPhase);
+    }
+
+    updateDisplay() {
+      const minutes = Math.floor(this.remainingTime / 60);
+      const seconds = this.remainingTime % 60;
+      this.domElements.timeDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+      const totalSeconds = this.durations[this.currentPhase];
+      const offset = this.circumference - (this.remainingTime / totalSeconds) * this.circumference;
+      this.domElements.progressCircle.style.strokeDashoffset = offset;
+    }
+
+    getPhaseName(phase) {
+      const names = {
+        pomodoro: 'Focus',
+        shortBreak: 'Short Break',
+        longBreak: 'Long Break'
+      };
+      return names[phase] || phase;
+    }
+
+    getPhaseColor(phase) {
+      const colors = {
+        pomodoro: 'var(--primary)',
+        shortBreak: 'var(--low)',
+        longBreak: 'var(--medium)'
+      };
+      return colors[phase] || 'var(--primary)';
+    }
   }
-  
-  updateDisplay() {
-    const minutes = Math.floor(this.remainingTime / 60);
-    const seconds = this.remainingTime % 60;
-    this.domElements.timeDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-    
-    const totalSeconds = this.durations[this.currentPhase];
-    const offset = this.circumference - (this.remainingTime / totalSeconds) * this.circumference;
-    this.domElements.progressCircle.style.strokeDashoffset = offset;
-  }
-  
-  getPhaseName(phase) {
-    const names = {
-      pomodoro: 'Focus',
-      shortBreak: 'Short Break',
-      longBreak: 'Long Break'
-    };
-    return names[phase] || phase;
-  }
-  
-  getPhaseColor(phase) {
-    const colors = {
-      pomodoro: 'var(--primary)',
-      shortBreak: 'var(--low)',
-      longBreak: 'var(--medium)'
-    };
-    return colors[phase] || 'var(--primary)';
-  }
-}
 
   // Initialize Pomodoro Timer
   new PomodoroTimer();

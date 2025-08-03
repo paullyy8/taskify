@@ -567,22 +567,89 @@ body {
   transform: translateY(0);
 }
 
-/* Pomodoro Modal */
-.pomodoro-modal .modal-content {
-  max-width: 420px;
-  padding-bottom: 24px;
-  background: var(--surface);
+/* Pomodoro Drawer */
+.pomodoro-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: flex-end;
+  z-index: 1000;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  opacity: 0;
 }
 
-.pomodoro-modal .modal-header {
-  border-bottom: none;
+.pomodoro-drawer.visible {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.drawer-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.pomodoro-drawer.visible .drawer-backdrop {
+  opacity: 1;
+}
+
+.drawer-content {
+  background: var(--surface);
+  height: 100%;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.3);
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  /* Make the drawer content scrollable on overflow */
+  overflow-y: auto; 
+  -webkit-overflow-scrolling: touch;
+}
+
+.pomodoro-drawer.visible .drawer-content {
+  transform: translateX(0);
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  /* Make the header sticky */
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 10;
+}
+
+.drawer-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .pomodoro-body {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 0 24px 24px;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 24px;
+  /* Add flex-grow to take up available space */
+  flex-grow: 1;
 }
 
 .phase-selector {
@@ -591,7 +658,6 @@ body {
   background: var(--surface-light);
   padding: 6px;
   border-radius: 50px;
-  margin: 0 auto;
   width: 100%;
   max-width: 300px;
 }
@@ -620,6 +686,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   margin: 10px 0;
 }
 
@@ -627,7 +694,7 @@ body {
   position: relative;
   width: 220px;
   height: 220px;
-  margin: 0 auto 16px;
+  margin-bottom: 16px;
 }
 
 .progress-ring-circle {
@@ -695,6 +762,7 @@ body {
   border-radius: 12px;
   padding: 20px;
   margin-top: 10px;
+  width: 100%;
 }
 
 .setting-group {
@@ -747,32 +815,31 @@ body {
 }
 
 /* Phase-specific styling */
-.pomodoro-modal.short-break-phase .phase-btn.phase-short-break.active {
+.pomodoro-drawer.short-break-phase .phase-btn.phase-short-break.active {
   background: var(--low);
   box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
 }
 
-.pomodoro-modal.long-break-phase .phase-btn.phase-long-break.active {
+.pomodoro-drawer.long-break-phase .phase-btn.phase-long-break.active {
   background: var(--medium);
   box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
 }
 
-.pomodoro-modal.short-break-phase .progress-ring-circle {
+.pomodoro-drawer.short-break-phase .progress-ring-circle {
   stroke: var(--low);
 }
 
-.pomodoro-modal.long-break-phase .progress-ring-circle {
+.pomodoro-drawer.long-break-phase .progress-ring-circle {
   stroke: var(--medium);
 }
 
-.pomodoro-modal.short-break-phase .phase-label {
+.pomodoro-drawer.short-break-phase .phase-label {
   color: var(--low);
 }
 
-.pomodoro-modal.long-break-phase .phase-label {
+.pomodoro-drawer.long-break-phase .phase-label {
   color: var(--medium);
 }
-
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -833,11 +900,95 @@ body {
     padding: 8px;
   }
 
-  /* Pomodoro Modal Responsive */
-  .pomodoro-modal .modal-content {
-    max-width: 90%;
-    margin: 0 16px;
+  /* --- Pomodoro Drawer Responsive Mobile Layout --- */
+  .drawer-content {
+    max-width: 100%;
   }
+
+  .drawer-header {
+    padding: 16px;
+  }
+
+  .pomodoro-body {
+    padding: 16px;
+    /* Flexbox for clean vertical stacking */
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  .phase-selector {
+    width: 100%;
+    max-width: 320px;
+    padding: 8px;
+  }
+
+  .pomodoro-display {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .progress-ring {
+    width: 220px;
+    height: 220px;
+    margin: 0;
+  }
+
+  .time-display {
+    font-size: 3rem;
+  }
+
+  .phase-label {
+    margin-top: 16px;
+    font-size: 1.1rem;
+  }
+
+  .pomodoro-controls {
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .pomodoro-btn {
+    width: 60px;
+    height: 60px;
+  }
+
+  .pomodoro-settings {
+    width: 100%;
+    padding: 16px;
+    /* Allow settings to grow and be visible */
+    flex-shrink: 0;
+  }
+
+  .setting-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .setting-row label {
+    width: 100%;
+    text-align: left;
+  }
+
+  .setting-row .input-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .setting-row input {
+    flex: 1;
+  }
+
+  .setting-row span {
+    width: auto;
+  }
+
 }
 
 @media (max-width: 480px) {
@@ -856,13 +1007,13 @@ body {
     width: 40px;
     justify-content: center;
   }
-  
+
   .new-task-btn .btn-text {
     position: absolute;
     opacity: 0;
     width: 0;
   }
-  
+
   .new-task-btn::after {
     content: "New Task";
     position: absolute;
@@ -879,7 +1030,7 @@ body {
     pointer-events: none;
     white-space: nowrap;
   }
-  
+
   .new-task-btn:hover::after {
     opacity: 1;
   }
@@ -887,7 +1038,7 @@ body {
   .filter-group {
     padding: 10px;
   }
-  
+
   .filter-btn {
     padding: 6px 10px;
     font-size: 0.8rem;
@@ -922,43 +1073,24 @@ body {
     width: 52px;
     height: 52px;
   }
-  
-  /* Pomodoro Modal Responsive */
-  .pomodoro-display {
-    margin: 0;
+
+  /* Pomodoro Drawer adjustments for small phones */
+  .pomodoro-body {
+    gap: 20px;
   }
+
   .progress-ring {
     width: 180px;
     height: 180px;
   }
-  
+
   .time-display {
     font-size: 2.5rem;
   }
 
-  .phase-selector {
-    max-width: 100%;
-  }
-
-  .pomodoro-body {
-    padding: 0 16px 16px;
-  }
-}
-
-/* Special cases for very small heights */
-@media (max-height: 600px) {
-  body {
-    padding: 0.5rem;
-  }
-
-  .app-container {
-    max-height: 100vh;
-    overflow-y: auto;
-  }
-
-  .task-list {
-    max-height: calc(100vh - 200px);
-    overflow-y: auto;
+  .pomodoro-btn {
+    width: 52px;
+    height: 52px;
   }
 }
 
