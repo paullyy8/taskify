@@ -569,16 +569,58 @@ body {
 
 /* Pomodoro Modal */
 .pomodoro-modal .modal-content {
-  max-width: 380px;
+  max-width: 420px;
   padding-bottom: 24px;
   background: var(--surface);
+}
+
+.pomodoro-modal .modal-header {
+  border-bottom: none;
+}
+
+.pomodoro-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 0 24px 24px;
+}
+
+.phase-selector {
+  display: flex;
+  justify-content: center;
+  background: var(--surface-light);
+  padding: 6px;
+  border-radius: 50px;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 300px;
+}
+
+.phase-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  flex: 1;
+  transition: var(--transition);
+  text-align: center;
+}
+
+.phase-btn.active {
+  color: white;
+  background: var(--primary);
+  box-shadow: 0 2px 8px rgba(41, 168, 224, 0.3);
 }
 
 .pomodoro-display {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 20px 0;
+  margin: 10px 0;
 }
 
 .progress-ring {
@@ -609,18 +651,19 @@ body {
 }
 
 .phase-label {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: var(--text-secondary);
-  margin-bottom: 16px;
+  font-weight: 600;
+  margin-top: 12px;
+  color: var(--primary);
 }
 
 .pomodoro-controls {
   display: flex;
   justify-content: center;
-  gap: 24px;
-  margin-bottom: 24px;
+  gap: 20px;
+  margin: 10px 0;
 }
 
 .pomodoro-btn {
@@ -648,42 +691,88 @@ body {
 }
 
 .pomodoro-settings {
+  background: var(--surface-light);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 10px;
+}
+
+.setting-group {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 0 24px;
+}
+
+.setting-group h3 {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
 }
 
 .setting-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
 }
 
 .setting-row label {
-  width: 120px;
   font-size: 0.95rem;
+  color: var(--text);
+  width: 120px;
+  text-align: left;
+}
+
+.setting-row .input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .setting-row input {
   width: 60px;
   padding: 8px 12px;
+  background: var(--surface);
   border: 1px solid var(--border-light);
   border-radius: 8px;
-  background: var(--surface-light);
   color: var(--text);
   text-align: center;
   font-size: 1rem;
 }
 
-/* Break phase styling */
-.break-phase .progress-ring-circle {
+.setting-row span {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  width: 60px;
+  text-align: left;
+}
+
+/* Phase-specific styling */
+.pomodoro-modal.short-break-phase .phase-btn.phase-short-break.active {
+  background: var(--low);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.pomodoro-modal.long-break-phase .phase-btn.phase-long-break.active {
+  background: var(--medium);
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.pomodoro-modal.short-break-phase .progress-ring-circle {
   stroke: var(--low);
 }
 
-.break-phase .phase-label {
+.pomodoro-modal.long-break-phase .progress-ring-circle {
+  stroke: var(--medium);
+}
+
+.pomodoro-modal.short-break-phase .phase-label {
   color: var(--low);
 }
+
+.pomodoro-modal.long-break-phase .phase-label {
+  color: var(--medium);
+}
+
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -743,6 +832,12 @@ body {
   .priority-option {
     padding: 8px;
   }
+
+  /* Pomodoro Modal Responsive */
+  .pomodoro-modal .modal-content {
+    max-width: 90%;
+    margin: 0 16px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -769,7 +864,7 @@ body {
   }
   
   .new-task-btn::after {
-    content: attr(aria-label);
+    content: "New Task";
     position: absolute;
     background: rgba(0,0,0,0.8);
     color: white;
@@ -828,10 +923,10 @@ body {
     height: 52px;
   }
   
-  .pomodoro-modal .modal-content {
-    max-width: 90%;
+  /* Pomodoro Modal Responsive */
+  .pomodoro-display {
+    margin: 0;
   }
-  
   .progress-ring {
     width: 180px;
     height: 180px;
@@ -839,6 +934,14 @@ body {
   
   .time-display {
     font-size: 2.5rem;
+  }
+
+  .phase-selector {
+    max-width: 100%;
+  }
+
+  .pomodoro-body {
+    padding: 0 16px 16px;
   }
 }
 
@@ -872,51 +975,4 @@ body {
   .filter-group {
     flex: 1 1 40%;
   }
-}
-/* Phase Selector */
-.phase-selector {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  padding: 0 20px 20px;
-}
-
-.phase-selector button {
-  background: var(--surface-light);
-  border: none;
-  color: var(--text);
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: var(--transition);
-}
-
-.phase-selector button.active {
-  background: var(--primary);
-  color: white;
-}
-
-/* Phase-specific styling */
-.pomodoro-phase .phase-pomodoro,
-.short-break-phase .phase-short-break,
-.long-break-phase .phase-long-break {
-  background: var(--primary);
-  color: white;
-}
-
-.short-break-phase .progress-ring-circle {
-  stroke: var(--low);
-}
-
-.short-break-phase .phase-label {
-  color: var(--low);
-}
-
-.long-break-phase .progress-ring-circle {
-  stroke: var(--medium);
-}
-
-.long-break-phase .phase-label {
-  color: var(--medium);
 }
